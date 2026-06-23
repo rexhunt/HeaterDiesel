@@ -140,6 +140,21 @@ cc1101:
                 id(setPointI).publish_state(setPoint);
 
                 break;
+              case 0x23:
+                //Heater wakeup
+                break;
+              case 0x24:
+                // CMD Mode
+                break;
+              case 0x2b:
+                // CMD Power
+                break;
+              case 0x3c:
+                // CMD Up
+                break;
+              case 0x3e:
+                // CMD Down
+                break;
               default:
                 //Unrecognized packet type
                 ESP_LOGD("cc1101", "Packet with unknown type recieved");
