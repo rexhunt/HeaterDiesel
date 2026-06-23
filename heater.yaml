@@ -161,7 +161,6 @@ cc1101:
             }
 
           } else {
-            //char hex[256];  // Size appropriately for your data
             ESP_LOGD("cc1101", "Packet with unknown address recieved");
             //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
                     //format_hex_to(hex, x), freq_offset, rssi, lqi);
