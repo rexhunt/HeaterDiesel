@@ -109,13 +109,12 @@ cc1101:
 
           char hex[26*3];  // Less than *3 cuts the end off the packets
 
-          address |= (x[2] << 24);
-          address |= (x[3] << 16);
-          address |= (x[4] << 8);
-          address |= (x[5]);
+          address |= (x[1] << 24);
+          address |= (x[2] << 16);
+          address |= (x[3] << 8);
+          address |= (x[4]);
           
-          if ( address = 0x6DC35C0D){
-            //char hex[26*2];  // Size appropriately for your data
+          if ( address == 0x6DC35C0D){
             ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
                     format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
             
@@ -137,7 +136,7 @@ cc1101:
 
           } else {
             //char hex[256];  // Size appropriately for your data
-            ESP_LOGD("cc1101", "Invalid Packet recieved");
+            ESP_LOGD("cc1101", "Packet with unknown address recieved");
             //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
                     //format_hex_to(hex, x), freq_offset, rssi, lqi);
           }

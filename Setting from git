@@ -1,0 +1,11 @@
+CHANBW E    3
+CHANBW M    3
+Filter Bandwidth    58kHz   58035.714285714
+
+4 preamble bytes
+
+Deviation E 2
+Deviation M 6
+Deviation:  11.1k   11108.3984375
+
+AGCCTRL2 Default
