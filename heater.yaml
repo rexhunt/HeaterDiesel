@@ -1,0 +1,180 @@
+esphome:
+  name: heater-control
+  friendly_name: Heater-Control
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret ha_api
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Heater-Control Fallback Hotspot"
+    password: "HWhtQEgq0YA8"
+
+captive_portal:
+    
+web_server:
+  port: 80
+
+sensor:
+  - platform: number
+    name: "Water Temperature"
+    source_id: waterTempI
+    device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:thermometer-water"
+  - platform: number
+    name: "Ambient Temperature"
+    source_id: ambientTempI
+    device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:thermometer"
+  - platform: number
+    name: "pumpFrequency"
+    source_id: pumpFrequencyI
+    device_class: "frequency"
+    state_class: "measurement"
+    icon: "mdi:pump"
+  - platform: number
+    name: "Setpoint"
+    source_id: setPointI
+    #device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:speedometer"
+
+
+#Establish SPI comms
+spi:
+  clk_pin: GPIO18
+  miso_pin: GPIO19
+  mosi_pin: GPIO23
+
+cc1101:
+  #General Settings
+  cs_pin: GPIO5
+  gdo0_pin: GPIO32
+  frequency: 433.955MHz
+  modulation_type:  GFSK
+  symbol_rate:  10000   #10k baud
+  #Tuner Settings
+  #filter_bandwidth: 58kHz    #Got better signals commented out
+  #fsk_deviation:  11.1kHz
+  fsk_deviation:  12kHz
+  #Packet Mode Settings
+  packet_mode:  True
+  packet_length:  0    #Come back to this for more packets from remote
+  #Changing to variable packet length cuts off leading byte of packet as reported length
+    #as used in cc1101, Also cuts off trailing 2 bytes used to report packet info from cc1101
+  #packet_length:  26
+  crc_enable: True   #Should be true
+  sync_mode:  30/32
+  sync0:  0x3C
+  sync1:  0x7E
+  #AGC Settings
+  max_dvga_gain:  Default
+  carrier_sense_abs_thr:  0
+  #Actions
+  on_packet:
+    then:
+      # - logger.log: "Packet Recieved"
+      - lambda: |-
+          uint32_t address = 0;
+          uint8_t size = x[0]; //Size of payload
+
+          //ESP_LOGD("cc1101", "Packet recieved reporting %u Long", size);
+          //ESP_LOGD("cc1101", "Packet recieved actually %u Long", sizeof(x));
+          //ESP_LOGD("cc1101", "x[1] is %u Long", sizeof(x[1]));
+
+
+          //ESP_LOGD("cc1101", "char is actually %u Long", sizeof(char));
+          //ESP_LOGD("cc1101", "uint8_t is actually %u Long", sizeof(uint8_t));
+
+
+          char hex[26*3];  // Less than *3 cuts the end off the packets
+
+          address |= (x[2] << 24);
+          address |= (x[3] << 16);
+          address |= (x[4] << 8);
+          address |= (x[5]);
+          
+          if ( address = 0x6DC35C0D){
+            //char hex[26*2];  // Size appropriately for your data
+            ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+                    format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
+            
+            if(false){ //size == 23){ //Correct size for data packet
+              uint8_t state = x[6];
+              uint8_t power = x[7];
+              float voltage = x[9] / 10.0f;
+              int8_t ambientTemp = x[10];
+              uint8_t caseTemp = x[12];
+              int8_t setPoint = x[13];
+              uint8_t autoMode = x[14];
+              float pumpFrequency = x[15] / 10.0f;
+
+              id(waterTempI).publish_state(caseTemp);
+              id(ambientTempI).publish_state(ambientTemp);
+              id(pumpFrequencyI).publish_state(pumpFrequency);
+              id(setPointI).publish_state(setPoint);
+            }
+
+          } else {
+            //char hex[256];  // Size appropriately for your data
+            ESP_LOGD("cc1101", "Invalid Packet recieved");
+            //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+                    //format_hex_to(hex, x), freq_offset, rssi, lqi);
+          }
+
+#Wake up heater and get current conditions
+interval:
+  - interval: 60 sec
+    then:
+      #- logger.log: "Changin packet size"
+      #- cc1101.send_packet:
+      #    data: [0x09, 0x23, 0x6D, 0xC3, 0x5C, 0x0D, 0x26, 0x07, 0x90, 0x00]
+          #Packet Length, cmd, Address & 0xFF x 4, packet seq crc &0xFF x2, 0
+      - logger.log: "Transmitting packet"
+
+
+number:
+  - platform: template
+    id: "waterTempI"
+    step: 1
+    min_value: -10
+    max_value: 110
+    optimistic: true
+  - platform: template
+    id: "ambientTempI"
+    step: 1
+    min_value: -10
+    max_value: 110
+    optimistic: true
+  - platform: template
+    id: "pumpFrequencyI"
+    step: 0.01
+    min_value: 0
+    max_value: 20
+    optimistic: true
+  - platform: template
+    id: "setPointI"
+    step: 1
+    min_value: 1
+    max_value: 9
+    optimistic: true
