@@ -203,8 +203,8 @@ void read_state(const uint8_t data[100]){
     id(byteD).publish_state(temp);
     snprintf(temp, sizeof(temp), "%X", byte17);
     id(byteE).publish_state(temp);
-    snprintf(temp, sizeof(temp), "%X", byte18);
-    id(byteF).publish_state(temp);
+    //snprintf(temp, sizeof(temp), "%d", byte18);
+    id(byteF).publish_state(byte18);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length
@@ -228,22 +228,29 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
                 break;
             case 0x23:
                 //Heater wakeup
+                ESP_LOGV("cdh", "Packet waking up heater recieved");
                 break;
             case 0x24:
                 // CMD Mode
+                ESP_LOGD("cdh", "Packet cmd recieved");
                 break;
             case 0x2b:
                 // CMD Power
+                ESP_LOGD("cdh", "Packet power recieved");
+                //ESP_LOGV("cdh", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+                    //format_hex_pretty_to(hex, packet), freq_offset, rssi, lqi);
                 break;
             case 0x3c:
                 // CMD Up
+                ESP_LOGD("cdh", "Packet Up recieved");
                 break;
             case 0x3e:
                 // CMD Down
+                ESP_LOGD("cdh", "Packet down recieved");
                 break;
             default:
                 //Unrecognized packet type
-                ESP_LOGD("cc1101", "Packet with unknown type recieved");
+                ESP_LOGD("cdh", "Packet with unknown type recieved");
             }
 
     } else {
