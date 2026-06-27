@@ -22,6 +22,7 @@
 #define HEATER_CMD_DOWN   0x3e
 
 uint8_t packet_seq; //Packet sequence number
+char stateT[13]; //State in ASCII
 
 /*
  * CRC-16/MODBUS
@@ -109,6 +110,44 @@ uint32_t extract_address(uint8_t a, uint8_t b, uint8_t c, uint8_t d){
     return addr;
 }
 
+void state_text(uint8_t state){
+    uint8_t stss = 0x05;
+
+    switch (state) {
+        case 0x00:
+            strncpy(stateT, "OFF", sizeof(stateT)-1);
+            break;
+        case 0x01:
+            strncpy(stateT, "Startup", sizeof(stateT)-1);
+            break;
+        case 0x02:
+            strncpy(stateT, "Warming", sizeof(stateT)-1);
+            break;
+        case 0x03:
+            strncpy(stateT, "Warming Wait", sizeof(stateT)-1);
+            break;
+        case 0x04:
+            strncpy(stateT, "Pre Run", sizeof(stateT)-1);
+            break;
+        case 0x05:
+            strncpy(stateT, "Running", sizeof(stateT)-1);
+            break;
+        case 0x06:
+            strncpy(stateT, "Shutdown", sizeof(stateT)-1);
+            break;
+        case 0x07:
+            strncpy(stateT, "Shutting Down", sizeof(stateT)-1);
+            break;
+        case 0x08:
+            strncpy(stateT, "Cooling", sizeof(stateT)-1);
+            break;
+        default:
+            strncpy(stateT, "Unk", sizeof(stateT)-1);
+    }
+
+    return;
+}
+
 void read_state(const uint8_t data[100]){
     /*Take the full packet as sent from the radio, interpret it and 
         send the latest values to the internal variables
@@ -125,12 +164,15 @@ void read_state(const uint8_t data[100]){
     int8_t setPoint = data[12];
     uint8_t autoMode = data[15];
     float pumpFrequency = data[14] / 10.0f;
+
+    state_text(state);
     
     //Push values to outputs
     id(waterTempI).publish_state(caseTemp);
     id(ambientTempI).publish_state(ambientTemp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
     id(setPointI).publish_state(setPoint);
+    id(stateI).publish_state(stateT);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length

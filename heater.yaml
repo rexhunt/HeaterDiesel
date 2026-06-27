@@ -139,3 +139,10 @@ number:
     min_value: 1
     max_value: 9
     optimistic: true
+
+text_sensor:
+  - platform: template
+    id: "stateI"
+    name: "HeaterState"
+    #mode: text
+    #optimistic: true
