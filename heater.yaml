@@ -76,7 +76,7 @@ cc1101:
 
           //Print recieved packet to log
           char hex[26*3];  // Less than *3 cuts the end off the packets
-          ESP_LOGV("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+          ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
             format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
 
 #Wake up heater and get current conditions
@@ -169,3 +169,13 @@ text_sensor:
   # - platform: template
   #   id: "byteF"
   #   name: "Unknown Byte 18"
+
+button:
+  - platform: template
+    id: onoffI
+    name: "Heater On Off"
+    on_press:
+      then:
+        - lambda: |-
+            tx_onoff();
+            ESP_LOGD("cdh", "On Off cycled");

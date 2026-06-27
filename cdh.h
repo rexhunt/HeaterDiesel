@@ -46,6 +46,41 @@ uint16_t crc16_2(uint8_t *buf, int len) {
   return crc;
 }
 
+void tx_onoff(){
+    //Send on/off signal to heater
+    //TODO, maybe merge with wakeup function for future other commands
+    //TODO add address handling
+
+    uint8_t data[9]; //Array containing packet
+    uint8_t crc_data[10]; //packet with leading byte added
+
+
+    data[0] = 0x2B; //ONOFF packet type
+    data[1] = 0x6D; //Address
+    data[2] = 0xC3; //Address
+    data[3] = 0x5C; //Address
+    data[4] = 0x0D; //Address
+    data[5] = packet_seq; //packet sequence
+    data[8] = 0x00;
+
+    packet_seq = packet_seq + 1;
+
+    //Add first byte to packet for calculating CRC
+    crc_data[0] = 0x09;
+    for (int i = 0; i < 9; i++){
+        crc_data[i+1] = data[i];
+    }
+
+    uint16_t crc = crc16_2(crc_data,7);
+
+    data[6] = (crc >> 8) & 0xFF; //crc1
+    data[7] = crc & 0xFF; //crc2
+
+    //Tx Packet
+    id(radio).transmit_packet(std::vector<uint8_t>(data, data + 9));
+    //TODO use vector through full function
+}
+
 void tx_wakeup(){
     /*Transmit wakeup packet to heater - Sould respond with status packet
     TODO add address handling
@@ -218,7 +253,7 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
           
     if ( address == 0x6DC35C0D){
         
-            
+          char hex[26*3];  // Less than *3 cuts the end off the packets
         //Check what type of packet has been recieved
         switch (packet[0]) {
             case 0x00:
@@ -237,8 +272,6 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
             case 0x2b:
                 // CMD Power
                 ESP_LOGD("cdh", "Packet power recieved");
-                //ESP_LOGV("cdh", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
-                    //format_hex_pretty_to(hex, packet), freq_offset, rssi, lqi);
                 break;
             case 0x3c:
                 // CMD Up
