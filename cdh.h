@@ -169,10 +169,13 @@ void read_state(const uint8_t data[100]){
     
     //Push values to outputs
     id(stateI).publish_state(stateT);
+    //power
+    id(voltageI).publish_state(voltage);
     id(ambientTempI).publish_state(ambientTemp);
     id(waterTempI).publish_state(caseTemp);
-    id(pumpFrequencyI).publish_state(pumpFrequency);
     id(setPointI).publish_state(setPoint);
+    //autoMode
+    id(pumpFrequencyI).publish_state(pumpFrequency);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length

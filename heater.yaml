@@ -35,32 +35,6 @@ captive_portal:
 web_server:
   port: 80
 
-sensor:
-  - platform: number
-    name: "Water Temperature"
-    source_id: waterTempI
-    device_class: "temperature"
-    state_class: "measurement"
-    icon: "mdi:thermometer-water"
-  - platform: number
-    name: "Ambient Temperature"
-    source_id: ambientTempI
-    device_class: "temperature"
-    state_class: "measurement"
-    icon: "mdi:thermometer"
-  - platform: number
-    name: "pumpFrequency"
-    source_id: pumpFrequencyI
-    device_class: "frequency"
-    state_class: "measurement"
-    icon: "mdi:pump"
-  - platform: number
-    name: "Setpoint"
-    source_id: setPointI
-    #device_class: "temperature"
-    state_class: "measurement"
-    icon: "mdi:speedometer"
-
 
 #Establish SPI comms
 spi:
@@ -113,30 +87,47 @@ interval:
           tx_wakeup();
       #- logger.log: "Transmitted packet"
 
+sensor:
+  - platform: number
+    name: "Supply Voltage"
+    source_id: nullI
+    id: voltageI
+    device_class: "voltage"
+    state_class: "measurement"
+  - platform: number
+    name: "Water Temperature"
+    id: waterTempI
+    source_id: nullI
+    device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:thermometer-water"
+  - platform: number
+    name: "Ambient Temperature"
+    id: ambientTempI
+    source_id: nullI
+    device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:thermometer"
+  - platform: number
+    name: "pumpFrequency"
+    id: pumpFrequencyI
+    source_id: nullI
+    device_class: "frequency"
+    state_class: "measurement"
+    icon: "mdi:pump"
+  - platform: number
+    name: "Setpoint"
+    id: setPointI
+    source_id: nullI
+    #device_class: "temperature"
+    state_class: "measurement"
+    icon: "mdi:speedometer"
 
 number:
   - platform: template
-    id: "waterTempI"
-    step: 1
-    min_value: -10
-    max_value: 110
-    optimistic: true
-  - platform: template
-    id: "ambientTempI"
-    step: 1
-    min_value: -10
-    max_value: 110
-    optimistic: true
-  - platform: template
-    id: "pumpFrequencyI"
-    step: 0.01
+    id: "nullI"
+    step: 0.1
     min_value: 0
-    max_value: 20
-    optimistic: true
-  - platform: template
-    id: "setPointI"
-    step: 1
-    min_value: 1
     max_value: 9
     optimistic: true
 
@@ -144,5 +135,3 @@ text_sensor:
   - platform: template
     id: "stateI"
     name: "HeaterState"
-    #mode: text
-    #optimistic: true
