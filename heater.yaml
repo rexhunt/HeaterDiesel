@@ -1,6 +1,8 @@
 esphome:
   name: heater-control
   friendly_name: Heater-Control
+  includes:
+    - cdh.h
 
 esp32:
   board: esp32dev
@@ -95,76 +97,12 @@ cc1101:
     then:
       # - logger.log: "Packet Recieved"
       - lambda: |-
-          uint32_t address = 0;
-          uint8_t size = x[0]; //Size of payload
+          read_packet(x.data());
 
-          address |= (x[1] << 24);
-          address |= (x[2] << 16);
-          address |= (x[3] << 8);
-          address |= (x[4]);
-
+          //Print recieved packet to log
           char hex[26*3];  // Less than *3 cuts the end off the packets
-
-          // Create variables for heater conditions
-          uint8_t state;
-          uint8_t power;
-          float voltage;
-          int8_t ambientTemp;
-          uint8_t caseTemp;
-          int8_t setPoint;
-          uint8_t autoMode;
-          float pumpFrequency;
-          
-          if ( address == 0x6DC35C0D){
-            ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
-                    format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
-            
-            //Check what type of packet has been recieved
-            switch (x[0]) {
-              case 0x00:
-                //Reporting heater conditions
-
-                state = x[5];
-                power = x[6];
-                voltage = x[8] / 10.0f;
-                ambientTemp = x[9];
-                caseTemp = x[11];
-                setPoint = x[12];
-                autoMode = x[15];
-                pumpFrequency = x[14] / 10.0f;
-
-                //Push values to outputs
-                id(waterTempI).publish_state(caseTemp);
-                id(ambientTempI).publish_state(ambientTemp);
-                id(pumpFrequencyI).publish_state(pumpFrequency);
-                id(setPointI).publish_state(setPoint);
-
-                break;
-              case 0x23:
-                //Heater wakeup
-                break;
-              case 0x24:
-                // CMD Mode
-                break;
-              case 0x2b:
-                // CMD Power
-                break;
-              case 0x3c:
-                // CMD Up
-                break;
-              case 0x3e:
-                // CMD Down
-                break;
-              default:
-                //Unrecognized packet type
-                ESP_LOGD("cc1101", "Packet with unknown type recieved");
-            }
-
-          } else {
-            ESP_LOGD("cc1101", "Packet with unknown address recieved");
-            //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
-                    //format_hex_to(hex, x), freq_offset, rssi, lqi);
-          }
+          ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+            format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
 
 #Wake up heater and get current conditions
 interval:
