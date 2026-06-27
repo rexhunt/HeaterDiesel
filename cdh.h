@@ -153,7 +153,9 @@ void read_state(const uint8_t data[100]){
         send the latest values to the internal variables
         Byte 0 is the packet type
         Bytes 1-4 are the address
-        */
+    */
+    
+    char temp[50]; //Temp array for misc strings
     
     //Get status bytes out of the packet
     uint8_t state = data[5];
@@ -169,12 +171,14 @@ void read_state(const uint8_t data[100]){
     
     //Push values to outputs
     id(stateI).publish_state(stateT);
-    //power
+    snprintf(temp, sizeof(temp), "%X", power);
+    id(powerI).publish_state(temp);
     id(voltageI).publish_state(voltage);
     id(ambientTempI).publish_state(ambientTemp);
     id(waterTempI).publish_state(caseTemp);
     id(setPointI).publish_state(setPoint);
-    //autoMode
+    snprintf(temp, sizeof(temp), "%X", autoMode);
+    id(autoI).publish_state(temp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
 }
 

@@ -135,3 +135,9 @@ text_sensor:
   - platform: template
     id: "stateI"
     name: "HeaterState"
+  - platform: template
+    id: "powerI"
+    name: "Power"
+  - platform: template
+    id: "autoI"
+    name: "Auto Mode"
