@@ -69,6 +69,7 @@ spi:
   mosi_pin: GPIO23
 
 cc1101:
+  id: "radio"
   #General Settings
   cs_pin: GPIO5
   gdo0_pin: GPIO32
@@ -101,20 +102,16 @@ cc1101:
 
           //Print recieved packet to log
           char hex[26*3];  // Less than *3 cuts the end off the packets
-          ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
+          ESP_LOGV("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
             format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
 
 #Wake up heater and get current conditions
 interval:
-  - interval: 3 sec
+  - interval: 6 sec
     then:
-      - #cc1101.send_packet:
-          #data: [0x23, 0x6D, 0xC3, 0x5C, 0x0D, 0x02, 0x9D, 0x51, 0x00]
-          #Packet cmd, Address & 0xFF x 4, packet seq crc &0xFF x2, 0
-            #Length prepended by transmitter in variable length mode
-            #Loose wires block tx signal
-            #packet sequence needs to increment & CRC needs to be correct
-      - #logger.log: "Transmitting packet"
+      - lambda: |-
+          tx_wakeup();
+      #- logger.log: "Transmitted packet"
 
 
 number:

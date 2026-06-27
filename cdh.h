@@ -4,6 +4,78 @@
     */
 
 
+uint8_t packet_seq; //Packet sequence number
+
+/*
+ * CRC-16/MODBUS
+ */
+uint16_t crc16_2(uint8_t *buf, int len) {
+    //CRC code grabbed from https://github.com/jakkik/DieselHeaterRF
+
+  uint16_t crc = 0xFFFF;
+
+  for (int pos = 0; pos < len; pos++) {
+    crc ^= (uint8_t)buf[pos];
+    for (int i = 8; i != 0; i--) {    
+      if ((crc & 0x0001) != 0) {      
+        crc >>= 1;                    
+        crc ^= 0xA001;
+      } else {                    
+        crc >>= 1;
+      }
+    }
+  }
+  return crc;
+}
+
+void tx_wakeup(){
+    /*Transmit wakeup packet to heater - Sould respond with status packet
+    TODO add address handling
+    Note: packet length (0x09) added to first byte of packet by radio
+    */
+
+
+    uint8_t data[9]; //Array containing packet
+    uint8_t crc_data[10]; //packet with leading byte added
+
+
+    data[0] = 0x23; //Wakeup packet type
+    data[1] = 0x6D; //Address
+    data[2] = 0xC3; //Address
+    data[3] = 0x5C; //Address
+    data[4] = 0x0D; //Address
+    data[5] = packet_seq; //packet sequence
+    data[8] = 0x00;
+
+    packet_seq = packet_seq + 1;
+
+    //Add first byte to packet for calculating CRC
+    crc_data[0] = 0x09;
+    for (int i = 0; i < 9; i++){
+        crc_data[i+1] = data[i];
+    }
+
+    uint16_t crc = crc16_2(crc_data,7);
+
+    data[6] = (crc >> 8) & 0xFF; //crc1
+    data[7] = crc & 0xFF; //crc2
+
+    //Log the CRC output
+    ESP_LOGV("cdh", "crc: %X:%X", data[6], data[7]);
+    //Pass packet details to log
+    char hex_bufa[sizeof(data)*3];
+    format_hex_pretty_to(hex_bufa, data, sizeof(data));
+    ESP_LOGV("cdh", "Data Packet: %s", hex_bufa);
+    char hex_bufb[sizeof(crc_data)*3];
+    format_hex_pretty_to(hex_bufb, crc_data, sizeof(crc_data));
+    ESP_LOGV("cdh", "CRC  Packet: %s", hex_bufb);
+
+
+    //Tx Packet
+    id(radio).transmit_packet(std::vector<uint8_t>(data, data + 9));
+    //TODO use vector through full function
+
+}
 
 uint32_t extract_address(uint8_t a, uint8_t b, uint8_t c, uint8_t d){
     //Arguments are 1 byte each of the address as found in the packet
