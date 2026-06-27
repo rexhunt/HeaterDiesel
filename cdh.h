@@ -182,7 +182,7 @@ void read_state(const uint8_t data[100]){
     id(autoI).publish_state(temp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
     snprintf(temp, sizeof(temp), "%X", seq);
-    id(seqI).publish_state(temp);
+    id(seqI).publish_state(temp);       //TODO check if we have recieved this packet before
 
     // Section for unknown bytes
     uint8_t byte7 = data[7];
@@ -191,9 +191,6 @@ void read_state(const uint8_t data[100]){
     uint8_t byte16 = data[16];
     uint8_t byte17 = data[17];
     uint8_t byte18 = data[18];
-    uint8_t byte20 = data[20];
-    uint8_t byte21 = data[21];
-    uint8_t byte22 = data[22];
 
 
     snprintf(temp, sizeof(temp), "%X", byte7);
@@ -208,12 +205,6 @@ void read_state(const uint8_t data[100]){
     id(byteE).publish_state(temp);
     snprintf(temp, sizeof(temp), "%X", byte18);
     id(byteF).publish_state(temp);
-    snprintf(temp, sizeof(temp), "%X", byte20);
-    id(byteH).publish_state(temp);
-    snprintf(temp, sizeof(temp), "%X", byte21);
-    id(byteI).publish_state(temp);
-    snprintf(temp, sizeof(temp), "%X", byte22);
-    id(byteJ).publish_state(temp);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length
