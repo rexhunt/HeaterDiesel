@@ -168,11 +168,11 @@ void read_state(const uint8_t data[100]){
     state_text(state);
     
     //Push values to outputs
-    id(waterTempI).publish_state(caseTemp);
+    id(stateI).publish_state(stateT);
     id(ambientTempI).publish_state(ambientTemp);
+    id(waterTempI).publish_state(caseTemp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
     id(setPointI).publish_state(setPoint);
-    id(stateI).publish_state(stateT);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length
