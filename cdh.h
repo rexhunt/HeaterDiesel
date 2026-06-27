@@ -1,8 +1,25 @@
 /*File for custom functions to control Chinese Diesel Heaters
     These functions expect to use ESPHome cc1101 module to connect to the heater
     the packets should be variable length which cuts off the leading byte
-    */
+*/
 
+//State Codes from https://github.com/jakkik/DieselHeaterRF
+#define HEATER_STATE_OFF            0x00
+#define HEATER_STATE_STARTUP        0x01
+#define HEATER_STATE_WARMING        0x02
+#define HEATER_STATE_WARMING_WAIT   0x03
+#define HEATER_STATE_PRE_RUN        0x04
+#define HEATER_STATE_RUNNING        0x05
+#define HEATER_STATE_SHUTDOWN       0x06
+#define HEATER_STATE_SHUTTING_DOWN  0x07
+#define HEATER_STATE_COOLING        0x08
+
+//Heater Command codes from https://github.com/jakkik/DieselHeaterRF
+#define HEATER_CMD_WAKEUP 0x23
+#define HEATER_CMD_MODE   0x24
+#define HEATER_CMD_POWER  0x2b
+#define HEATER_CMD_UP     0x3c
+#define HEATER_CMD_DOWN   0x3e
 
 uint8_t packet_seq; //Packet sequence number
 
