@@ -166,6 +166,7 @@ void read_state(const uint8_t data[100]){
     int8_t setPoint = data[12];
     uint8_t autoMode = data[15];
     float pumpFrequency = data[14] / 10.0f;
+    uint8_t seq = data[19];
 
     state_text(state);
     
@@ -180,6 +181,39 @@ void read_state(const uint8_t data[100]){
     snprintf(temp, sizeof(temp), "%X", autoMode);
     id(autoI).publish_state(temp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
+    snprintf(temp, sizeof(temp), "%X", seq);
+    id(seqI).publish_state(temp);
+
+    // Section for unknown bytes
+    uint8_t byte7 = data[7];
+    uint8_t byte10 = data[10];
+    uint8_t byte13 = data[13];
+    uint8_t byte16 = data[16];
+    uint8_t byte17 = data[17];
+    uint8_t byte18 = data[18];
+    uint8_t byte20 = data[20];
+    uint8_t byte21 = data[21];
+    uint8_t byte22 = data[22];
+
+
+    snprintf(temp, sizeof(temp), "%X", byte7);
+    id(byteA).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte10);
+    id(byteB).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte13);
+    id(byteC).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte16);
+    id(byteD).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte17);
+    id(byteE).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte18);
+    id(byteF).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte20);
+    id(byteH).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte21);
+    id(byteI).publish_state(temp);
+    snprintf(temp, sizeof(temp), "%X", byte22);
+    id(byteJ).publish_state(temp);
 }
 
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length

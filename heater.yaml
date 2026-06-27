@@ -141,3 +141,33 @@ text_sensor:
   - platform: template
     id: "autoI"
     name: "Auto Mode"
+  - platform: template
+    id: "seqI"
+    name: "Recieved Packet Sequence"
+  - platform: template
+    id: "byteA"
+    name: "Unknown Byte 7"
+  - platform: template
+    id: "byteB"
+    name: "Unknown Byte 10"
+  - platform: template
+    id: "byteC"
+    name: "Unknown Byte 13"
+  - platform: template
+    id: "byteD"
+    name: "Unknown Byte 16"
+  - platform: template
+    id: "byteE"
+    name: "Unknown Byte 17"
+  - platform: template
+    id: "byteF"
+    name: "Unknown Byte 18"
+  - platform: template
+    id: "byteH"
+    name: "Unknown Byte 20"
+  - platform: template
+    id: "byteI"
+    name: "Unknown Byte 21"
+  - platform: template
+    id: "byteJ"
+    name: "Unknown Byte 22"
