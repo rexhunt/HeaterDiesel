@@ -168,13 +168,15 @@ cc1101:
 
 #Wake up heater and get current conditions
 interval:
-  - interval: 60 sec
+  - interval: 3 sec
     then:
-      #- logger.log: "Changin packet size"
-      #- cc1101.send_packet:
-      #    data: [0x09, 0x23, 0x6D, 0xC3, 0x5C, 0x0D, 0x26, 0x07, 0x90, 0x00]
-          #Packet Length, cmd, Address & 0xFF x 4, packet seq crc &0xFF x2, 0
-      - logger.log: "Transmitting packet"
+      - #cc1101.send_packet:
+          #data: [0x23, 0x6D, 0xC3, 0x5C, 0x0D, 0x02, 0x9D, 0x51, 0x00]
+          #Packet cmd, Address & 0xFF x 4, packet seq crc &0xFF x2, 0
+            #Length prepended by transmitter in variable length mode
+            #Loose wires block tx signal
+            #packet sequence needs to increment & CRC needs to be correct
+      - #logger.log: "Transmitting packet"
 
 
 number:
