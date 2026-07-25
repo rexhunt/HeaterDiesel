@@ -184,7 +184,7 @@ void read_state(const uint8_t data[100]){
     id(autoI).publish_state(temp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
     snprintf(temp, sizeof(temp), "%X", seq);
-    id(seqI).publish_state(temp);       //TODO check if we have recieved this packet before
+    id(seqI).publish_state(temp);
 
     // Section for unknown bytes
     uint8_t byte7 = data[7];
