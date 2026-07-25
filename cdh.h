@@ -331,6 +331,9 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
 
     } else {
         ESP_LOGD("cc1101", "Packet with unknown address recieved");
+        //Log packet for identifying new bytes
+        format_packet_print(hex, packet, 25);
+        ESP_LOGD("cc1101", "packet %s ", hex);
         //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
             //format_hex_to(hex, x), freq_offset, rssi, lqi);
         }
