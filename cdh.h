@@ -24,6 +24,7 @@
 uint8_t packet_seq; //Packet sequence number
 char stateT[13]; //State in ASCII
 uint8_t last_seq; //Last recieved sequence number
+uint32_t myAddress = 0x6DC35C0D; //Address for this heater
 
 /*
  * CRC-16/MODBUS
@@ -274,7 +275,7 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
 
     char hex[26*3];  // Less than *3 cuts the end off the packets
           
-    if ( address == 0x6DC35C0D){
+    if ( address == myAddress){
         
         
         //Check what type of packet has been recieved
