@@ -79,7 +79,7 @@ interval:
   - interval: 6 sec
     then:
       - lambda: |-
-          tx_wakeup();
+          tx_packet(0x23);
       #- logger.log: "Transmitted packet"
 
 sensor:
@@ -172,5 +172,5 @@ button:
     on_press:
       then:
         - lambda: |-
-            tx_onoff();
+            tx_packet(0x2B);
             ESP_LOGD("cdh", "On Off cycled");

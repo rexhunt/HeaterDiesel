@@ -48,57 +48,30 @@ uint16_t crc16_2(uint8_t *buf, int len) {
   return crc;
 }
 
-void tx_onoff(){
-    //Send on/off signal to heater
-    //TODO, maybe merge with wakeup function for future other commands
-    //TODO add address handling
-
-    uint8_t data[9]; //Array containing packet
-    uint8_t crc_data[10]; //packet with leading byte added
-
-
-    data[0] = 0x2B; //ONOFF packet type
-    data[1] = 0x6D; //Address
-    data[2] = 0xC3; //Address
-    data[3] = 0x5C; //Address
-    data[4] = 0x0D; //Address
-    data[5] = packet_seq; //packet sequence
-    data[8] = 0x00;
-
-    packet_seq = packet_seq + 1;
-
-    //Add first byte to packet for calculating CRC
-    crc_data[0] = 0x09;
-    for (int i = 0; i < 9; i++){
-        crc_data[i+1] = data[i];
+void format_packet_print(char *arr, const uint8_t packet[100], int size){
+    int io = 0;
+    for (int i = 0; i < size; i++){
+        snprintf(arr, 4, "%02X:", packet[i]);
+        arr += 3;
     }
-
-    uint16_t crc = crc16_2(crc_data,7);
-
-    data[6] = (crc >> 8) & 0xFF; //crc1
-    data[7] = crc & 0xFF; //crc2
-
-    //Tx Packet
-    id(radio).transmit_packet(std::vector<uint8_t>(data, data + 9));
-    //TODO use vector through full function
 }
 
-void tx_wakeup(){
-    /*Transmit wakeup packet to heater - Sould respond with status packet
-    TODO add address handling
-    Note: packet length (0x09) added to first byte of packet by radio
-    */
+void tx_packet(uint8_t type){
 
+    int length = 9; //Packet length
+    uint8_t data[length]; //Array containing packet
+    uint8_t crc_data[length + 1]; //packet with leading byte added
 
-    uint8_t data[9]; //Array containing packet
-    uint8_t crc_data[10]; //packet with leading byte added
+    // Packet Type
+    data[0] = type;
 
+    //Address       Right Shift and apply mask
+    data[1] = (myAddress >> 3 * 8) & 0xFF;
+    data[2] = (myAddress >> 2 * 8) & 0xFF;
+    data[3] = (myAddress >> 1 * 8) & 0xFF;
+    data[4] = (myAddress >> 0 * 8) & 0xFF;
 
-    data[0] = 0x23; //Wakeup packet type
-    data[1] = 0x6D; //Address
-    data[2] = 0xC3; //Address
-    data[3] = 0x5C; //Address
-    data[4] = 0x0D; //Address
+    //Remaining bytes
     data[5] = packet_seq; //packet sequence
     data[8] = 0x00;
 
@@ -115,10 +88,13 @@ void tx_wakeup(){
     data[6] = (crc >> 8) & 0xFF; //crc1
     data[7] = crc & 0xFF; //crc2
 
+    char hex[26*3];
+    format_packet_print(hex, data, length);
+    ESP_LOGV("cc1101", "tx packet %s ", hex);
+
     //Tx Packet
     id(radio).transmit_packet(std::vector<uint8_t>(data, data + 9));
     //TODO use vector through full function
-
 }
 
 uint32_t extract_address(uint8_t a, uint8_t b, uint8_t c, uint8_t d){
@@ -233,13 +209,6 @@ void read_state(const uint8_t data[100]){
     id(byteF).publish_state(byte18);
 }
 
-void format_packet_print(char *arr, const uint8_t packet[100], int size){
-    int io = 0;
-    for (int i = 0; i < size; i++){
-        snprintf(arr, 4, "%02X:", packet[i]);
-        arr += 3;
-    }
-}
 
 bool dup_packet(const uint8_t packet[100],int posn){//packet, position in packet of sequence
     /*Check if this packet has already been recieved
@@ -296,27 +265,27 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
                 if(dup_packet(packet, 5)){break;}
                 ESP_LOGD("cdh", "Packet cmd recieved");
                 format_packet_print(hex, packet, 9);
-                ESP_LOGD("cc1101", "packet %s ", hex);
+                ESP_LOGD("cc1101", "rx packet %s ", hex);
                 break;
             case 0x2b:
                 // CMD Power
                 if(dup_packet(packet, 5)){break;}
                 ESP_LOGD("cdh", "Packet power recieved");
                 format_packet_print(hex, packet, 9);
-                ESP_LOGD("cc1101", "packet %s ", hex);
+                ESP_LOGD("cc1101", "rx packet %s ", hex);
                 break;
             case 0x3c:
                 // CMD Up
                 if(dup_packet(packet, 5)){break;}
                 format_packet_print(hex, packet, 9);
-                ESP_LOGD("cc1101", "packet %s ", hex);
+                ESP_LOGD("cc1101", "rx packet %s ", hex);
                 ESP_LOGD("cdh", "Packet Up recieved");
                 break;
             case 0x3e:
                 // CMD Down
                 if(dup_packet(packet, 5)){break;}
                 format_packet_print(hex, packet, 9);
-                ESP_LOGD("cc1101", "packet %s ", hex);
+                ESP_LOGD("cc1101", "rx packet %s ", hex);
                 ESP_LOGD("cdh", "Packet down recieved");
                 break;
             default:
@@ -324,14 +293,14 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
                 ESP_LOGD("cdh", "Packet with unknown type recieved");
                 //Log packet for identifying new bytes
                 format_packet_print(hex, packet, 25);
-                ESP_LOGD("cc1101", "packet %s ", hex);
+                ESP_LOGD("cc1101", "rx packet %s ", hex);
             }
 
     } else {
         ESP_LOGD("cc1101", "Packet with unknown address recieved");
         //Log packet for identifying new bytes
         format_packet_print(hex, packet, 25);
-        ESP_LOGD("cc1101", "packet %s ", hex);
+        ESP_LOGD("cc1101", "rx packet %s ", hex);
         //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
             //format_hex_to(hex, x), freq_offset, rssi, lqi);
         }
