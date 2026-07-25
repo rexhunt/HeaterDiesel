@@ -183,7 +183,7 @@ button:
       then:
         - lambda: |-
             tx_packet(0x3C);
-            ESP_LOGD("cdh", "On Off cycled");
+            ESP_LOGD("cdh", "Up called");
   - platform: template
     id: downI
     name: "Heater Down"
@@ -191,4 +191,4 @@ button:
       then:
         - lambda: |-
             tx_packet(0x3E);
-            ESP_LOGD("cdh", "On Off cycled");
+            ESP_LOGD("cdh", "Down called");
