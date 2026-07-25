@@ -89,6 +89,7 @@ sensor:
     id: voltageI
     device_class: "voltage"
     state_class: "measurement"
+    accuracy_decimals: 1
   - platform: number
     name: "Water Temperature"
     id: waterTempI
@@ -110,6 +111,7 @@ sensor:
     device_class: "frequency"
     state_class: "measurement"
     icon: "mdi:pump"
+    accuracy_decimals: 1
   - platform: number
     name: "Setpoint"
     id: setPointI
