@@ -23,6 +23,7 @@
 
 uint8_t packet_seq; //Packet sequence number
 char stateT[13]; //State in ASCII
+uint8_t last_seq; //Last recieved sequence number
 
 /*
  * CRC-16/MODBUS
@@ -242,6 +243,39 @@ void read_state(const uint8_t data[100]){
     id(byteF).publish_state(byte18);
 }
 
+void format_packet_print(char *arr, const uint8_t packet[100], int size){
+    int io = 0;
+    for (int i = 0; i < size; i++){
+        snprintf(arr, 4, "%02X:", packet[i]);
+        arr += 3;
+    }
+}
+
+bool dup_packet(const uint8_t packet[100],int posn){//packet, position in packet of sequence
+    /*Check if this packet has already been recieved
+    Return True if a duplicate packet, False if not
+    */
+
+    uint8_t new_seq = packet[posn]; //New recieved sequence number
+
+    
+    if (new_seq == last_seq){//This is a duplicate packet and should be dropped
+            ESP_LOGV("cdh", "Dropping duplicate packet");
+            return true;
+    }
+
+    ESP_LOGV("cdh", "Updating New seq = %X old seq = %X", new_seq, last_seq);
+    last_seq = new_seq;
+
+    //Log packet for identifying new bytes
+    char hex[26*3];
+    format_packet_print(hex, packet, posn + 6);
+    ESP_LOGD("cc1101", "packet %s ", hex);
+
+    return false;
+
+}
+
 void read_packet(const uint8_t packet[100]){//TODO check needed packet length
     /* Take full packet from radio and decide what to do with it
     */
@@ -259,31 +293,40 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
             case 0x00:
                 //Reporting heater conditions
                 //read_state(packet.data());
+                if(dup_packet(packet, 19)){break;}
                 read_state(packet);
                 break;
             case 0x23:
                 //Heater wakeup
                 ESP_LOGV("cdh", "Packet waking up heater recieved");
+                if(dup_packet(packet, 19)){break;}
                 break;
             case 0x24:
                 // CMD Mode
                 ESP_LOGD("cdh", "Packet cmd recieved");
+                if(dup_packet(packet, 19)){break;}
                 break;
             case 0x2b:
                 // CMD Power
                 ESP_LOGD("cdh", "Packet power recieved");
+                if(dup_packet(packet, 19)){break;}
                 break;
             case 0x3c:
                 // CMD Up
                 ESP_LOGD("cdh", "Packet Up recieved");
+                if(dup_packet(packet, 19)){break;}
                 break;
             case 0x3e:
                 // CMD Down
                 ESP_LOGD("cdh", "Packet down recieved");
+                if(dup_packet(packet, 19)){break;}
                 break;
             default:
                 //Unrecognized packet type
                 ESP_LOGD("cdh", "Packet with unknown type recieved");
+                //Log packet for identifying new bytes
+                format_packet_print(hex, packet, 25);
+                ESP_LOGD("cc1101", "packet %s ", hex);
             }
 
     } else {

@@ -74,11 +74,6 @@ cc1101:
       - lambda: |-
           read_packet(x.data());
 
-          //Print recieved packet to log
-          char hex[26*3];  // Less than *3 cuts the end off the packets
-          ESP_LOGD("cc1101", "packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
-            format_hex_pretty_to(hex, x), freq_offset, rssi, lqi);
-
 #Wake up heater and get current conditions
 interval:
   - interval: 6 sec
