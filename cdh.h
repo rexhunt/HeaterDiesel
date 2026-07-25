@@ -114,17 +114,6 @@ void tx_wakeup(){
     data[6] = (crc >> 8) & 0xFF; //crc1
     data[7] = crc & 0xFF; //crc2
 
-    //Log the CRC output
-    ESP_LOGV("cdh", "crc: %X:%X", data[6], data[7]);
-    //Pass packet details to log
-    char hex_bufa[sizeof(data)*3];
-    format_hex_pretty_to(hex_bufa, data, sizeof(data));
-    ESP_LOGV("cdh", "Data Packet: %s", hex_bufa);
-    char hex_bufb[sizeof(crc_data)*3];
-    format_hex_pretty_to(hex_bufb, crc_data, sizeof(crc_data));
-    ESP_LOGV("cdh", "CRC  Packet: %s", hex_bufb);
-
-
     //Tx Packet
     id(radio).transmit_packet(std::vector<uint8_t>(data, data + 9));
     //TODO use vector through full function
@@ -283,11 +272,11 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
     //Get address into a useful format
     uint32_t address = extract_address(packet[1], packet[2], packet[3], packet[4]);
 
-    
+    char hex[26*3];  // Less than *3 cuts the end off the packets
           
     if ( address == 0x6DC35C0D){
         
-          char hex[26*3];  // Less than *3 cuts the end off the packets
+        
         //Check what type of packet has been recieved
         switch (packet[0]) {
             case 0x00:
@@ -298,28 +287,36 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
                 break;
             case 0x23:
                 //Heater wakeup
-                ESP_LOGV("cdh", "Packet waking up heater recieved");
-                if(dup_packet(packet, 19)){break;}
+                if(dup_packet(packet, 5)){break;}
+                ESP_LOGD("cdh", "Packet waking up heater recieved");
                 break;
             case 0x24:
                 // CMD Mode
+                if(dup_packet(packet, 5)){break;}
                 ESP_LOGD("cdh", "Packet cmd recieved");
-                if(dup_packet(packet, 19)){break;}
+                format_packet_print(hex, packet, 9);
+                ESP_LOGD("cc1101", "packet %s ", hex);
                 break;
             case 0x2b:
                 // CMD Power
+                if(dup_packet(packet, 5)){break;}
                 ESP_LOGD("cdh", "Packet power recieved");
-                if(dup_packet(packet, 19)){break;}
+                format_packet_print(hex, packet, 9);
+                ESP_LOGD("cc1101", "packet %s ", hex);
                 break;
             case 0x3c:
                 // CMD Up
+                if(dup_packet(packet, 5)){break;}
+                format_packet_print(hex, packet, 9);
+                ESP_LOGD("cc1101", "packet %s ", hex);
                 ESP_LOGD("cdh", "Packet Up recieved");
-                if(dup_packet(packet, 19)){break;}
                 break;
             case 0x3e:
                 // CMD Down
+                if(dup_packet(packet, 5)){break;}
+                format_packet_print(hex, packet, 9);
+                ESP_LOGD("cc1101", "packet %s ", hex);
                 ESP_LOGD("cdh", "Packet down recieved");
-                if(dup_packet(packet, 19)){break;}
                 break;
             default:
                 //Unrecognized packet type
