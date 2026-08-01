@@ -337,7 +337,7 @@ void state_loop(void){
 
     if (req_setpoint != act_setpoint){
         //Setpoint has had a change request
-        ESP_LOGD("cdh", "Changing setpoint");
+        ESP_LOGV("cdh", "Changing setpoint");
         if (req_setpoint < act_setpoint) {tx_packet(HEATER_CMD_DOWN);}
         if (req_setpoint > act_setpoint) {tx_packet(HEATER_CMD_UP);}
     }
