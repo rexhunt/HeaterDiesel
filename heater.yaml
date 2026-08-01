@@ -193,4 +193,3 @@ switch:
     id: powerI
     name: "Power"
     optimistic: True
-    internal: True
