@@ -139,6 +139,13 @@ number:
     min_value: 0
     max_value: 9
     optimistic: true
+  - platform: template
+    id: "setpointSW"
+    name: "Set Point"
+    step: 1
+    min_value: 1
+    max_value: 9
+    optimistic: True
 
 text_sensor:
   - platform: template
