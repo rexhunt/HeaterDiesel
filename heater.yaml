@@ -151,9 +151,6 @@ text_sensor:
     id: "autoI"
     name: "Auto Mode"
   - platform: template
-    id: "seqI"
-    name: "Recieved Packet Sequence"
-  - platform: template
     id: "byteA"
     name: "Unknown Byte 7"
   - platform: template

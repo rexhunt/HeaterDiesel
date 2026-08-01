@@ -168,7 +168,7 @@ void read_state(const uint8_t data[100]){
     int8_t setPoint = data[12];
     uint8_t autoMode = data[15];
     float pumpFrequency = data[14] / 10.0f;
-    uint8_t seq = data[19];
+    //uint8_t seq = data[19];
 
     state_text(state);
     
@@ -183,8 +183,6 @@ void read_state(const uint8_t data[100]){
     snprintf(temp, sizeof(temp), "%X", autoMode);
     id(autoI).publish_state(temp);
     id(pumpFrequencyI).publish_state(pumpFrequency);
-    snprintf(temp, sizeof(temp), "%X", seq);
-    id(seqI).publish_state(temp);
 
     // Section for unknown bytes
     uint8_t byte7 = data[7];
