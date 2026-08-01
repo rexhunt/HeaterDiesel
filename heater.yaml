@@ -94,6 +94,7 @@ sensor:
     id: voltageI
     device_class: "voltage"
     state_class: "measurement"
+    unit_of_measurement: "V"
     accuracy_decimals: 1
   - platform: number
     name: "Water Temperature"
@@ -101,6 +102,7 @@ sensor:
     source_id: nullI
     device_class: "temperature"
     state_class: "measurement"
+    unit_of_measurement: "°C"
     icon: "mdi:thermometer-water"
   - platform: number
     name: "Ambient Temperature"
@@ -108,6 +110,7 @@ sensor:
     source_id: nullI
     device_class: "temperature"
     state_class: "measurement"
+    unit_of_measurement: "°C"
     icon: "mdi:thermometer"
   - platform: number
     name: "pumpFrequency"
