@@ -174,8 +174,8 @@ void read_state(const uint8_t data[100]){
     
     //Push values to outputs
     id(stateI).publish_state(stateT);
-    snprintf(temp, sizeof(temp), "%X", power);
-    id(powerI).publish_state(temp);
+    //snprintf(temp, sizeof(temp), "%X", power);
+    id(powerI).publish_state(power);
     id(voltageI).publish_state(voltage);
     id(ambientTempI).publish_state(ambientTemp);
     id(waterTempI).publish_state(caseTemp);
@@ -304,5 +304,30 @@ void read_packet(const uint8_t packet[100]){//TODO check needed packet length
         //ESP_LOGD("cc1101", "unknown packet %s freq_offset %.0f Hz rssi %.1f dBm lqi %u",
             //format_hex_to(hex, x), freq_offset, rssi, lqi);
         }
+
+}
+void state_loop(void){
+    //Loop to check if requested state is what's actually going on, then correct if needed
+
+    bool req_power, act_power; //True is on
+    
+    //Get requested on off state
+    req_power = id(onoffSW).state;
+
+    /*Get current power state
+    this seems to be a simplified variable for all states*/
+    act_power = id(powerI).state;
+
+
+    //This will send multiple packet, but should be fine as power on/off seems to get ignored unless in steady state
+    if (req_power != act_power){
+        //Current power is not as requested
+        ESP_LOGV("cdh", "Changing power state");
+        tx_packet(HEATER_CMD_POWER);
+    }
+    else{
+        //Power state is correct and can be left alone
+        ESP_LOGV("cdh", "Keeping power as is");
+    }
 
 }

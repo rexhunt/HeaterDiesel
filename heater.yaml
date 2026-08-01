@@ -81,6 +81,11 @@ interval:
       - lambda: |-
           tx_packet(0x23);
       #- logger.log: "Transmitted packet"
+  - interval: 10 sec
+    then:
+      #- logger.log: "State Loop Triggered"
+      - lambda: |-
+          state_loop();
 
 sensor:
   - platform: number
@@ -139,9 +144,9 @@ text_sensor:
   - platform: template
     id: "stateI"
     name: "HeaterState"
-  - platform: template
-    id: "powerI"
-    name: "Power"
+#  - platform: template
+#    id: "powerI"
+#    name: "Power"
   - platform: template
     id: "autoI"
     name: "Auto Mode"
@@ -192,3 +197,15 @@ button:
         - lambda: |-
             tx_packet(0x3E);
             ESP_LOGD("cdh", "Down called");
+
+switch:
+  - platform: template
+    id: onoffSW
+    name: "PowerSW"
+    icon: "mdi:PowerCycle"
+    optimistic: True
+  - platform: template
+    id: powerI
+    name: "Power"
+    optimistic: True
+    internal: True
