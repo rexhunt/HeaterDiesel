@@ -140,8 +140,8 @@ number:
     max_value: 9
     optimistic: true
   - platform: template
-    id: "setpointSW"
-    name: "Set Point"
+    id: "setPointSW"
+    name: "Set Point SW"
     step: 1
     min_value: 1
     max_value: 9
