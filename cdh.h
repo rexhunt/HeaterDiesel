@@ -321,7 +321,14 @@ void state_loop(void){
     if (req_power != act_power){
         //Current power is not as requested
         ESP_LOGV("cdh", "Changing power state");
-        tx_packet(HEATER_CMD_POWER);
+        //Suppress packet if warming up
+        if (id(stateI).state == "Startup"){
+            //Suppress packet
+        }
+        else{
+            //Send away
+            tx_packet(HEATER_CMD_POWER);
+        }
     }
     else{
         //Power state is correct and can be left alone
